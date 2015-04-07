@@ -6,8 +6,9 @@ Nathaniel Bloomfield
 
 This code takes input and after taking mean and SD, plots the data.
 
-Need to add plotting of different wavelengths against each other.
-Then in the fit one, allow user to choose which wavelength to use. Do this another time...
+includes plotting each concentration series together, and also each concentration
+at different wavelengths.
+
 """
 
 MEAN = list(CONCENTRATIONS)
