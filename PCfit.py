@@ -1,13 +1,10 @@
 """
-
+Written by:
 Nathaniel Bloomfield
 
 14/12/14
 
-This code takes input and fits a curve to it, outputing the data reduction as a .py file.
-
-I think I should also judge error on this...
-fitting works much better at some temperatures in comparison to others.
+This code fits a curve to the data it, outputing the data reduction as a .py file.
 
 """
 
@@ -84,10 +81,10 @@ def fitting_func(a_low,a_high,b_low, b_high,c_low, c_high,d_low, d_high):
 
 use_wavelength = choose_lambda()
 
-NAD = 30
+NAD = 10
 NBD = 30
 NCD = 30
-NDD = 5
+NDD = 1
 
 #Not working with buffer
 CONCENTRATIONS = (CONCENTRATIONS[1:])
@@ -102,6 +99,11 @@ for idx, val in enumerate(CONCENTRATIONS):
 TIME_old = deepcopy(TIME)
 data_old = deepcopy(data)
 ttot_old2 = ttot
+
+plotting = True
+fig = plt.figure()
+
+
 for idx, val in enumerate(CONC_WELLS):
 
     fiddling = CONC_WELLS[idx]
@@ -130,20 +132,21 @@ for idx, val in enumerate(CONC_WELLS):
         # print a
 
 
-        d = numpy.sum(data[(ttot*use_wavelength):(ttot*use_wavelength +6),fiddling[idx2]])/6
-        # print d
-        a = numpy.sum(data[(ttot*(use_wavelength+1)-5):(ttot*(use_wavelength+1)),fiddling[idx2]] - d)/6
+        # d = numpy.sum(data[(ttot*use_wavelength):(ttot*use_wavelength +6),fiddling[idx2]])/6
+        # # print d
+        # a = numpy.sum(data[(ttot*(use_wavelength+1)-5):(ttot*(use_wavelength+1)),fiddling[idx2]] - d)/6
         # print a
-        d_low = d*0.8
-        d_high = d*1.2
+        d = numpy.amin(data[(ttot*use_wavelength):(ttot*(use_wavelength+1)),fiddling[idx2]] )
+        d_low = d*1
+        d_high = d*1
+        a = numpy.amax(data[(ttot*use_wavelength):(ttot*(use_wavelength+1)),fiddling[idx2]] - d)
+        a_low = a*1
+        a_high = a*1.1
 
-        a_low = a*0.8
-        a_high = a*1.2
-
-        b_low = 0.0000001
-        b_high = 0.001
-        c_low = 0.5
-        c_high = 5
+        b_low = 1e-06
+        b_high = 2e-04
+        c_low = 1
+        c_high = 3
 
         a, b, c, d = fitting_func(a_low,a_high,b_low, b_high,c_low, c_high,d_low, d_high)
 
@@ -158,25 +161,25 @@ for idx, val in enumerate(CONC_WELLS):
         value = equation(a, b, c, d)
         #print value
         print str(a)+ ', ' + str(b)+ ', ' + str(c) + ', ' + str(d)
+
         #plot each one
+        if (plotting):
+            print plt.get_fignums()
+            if size(plt.get_fignums()) > 20:
+                plt.close('all')
+            plt.clf()
 
-        # should do an if plotting=false... here
-        # print plt.get_fignums()
-        # if size(plt.get_fignums()) > 20:
-        #     plt.close('all')
-
-        # fig = plt.figure()
-        # ax1 = fig.add_subplot(111)
-        # ax1.plot(TIME,data[:ttot,fiddling[idx2]], 'ro', mfc='None' , label="Data")
-        # ax1.plot(TIME_old,data_old[:ttot_old2,fiddling[idx2]], 'rx' , label="Data")
-        # ax1.plot(TIME,value, 'r-', label="Fitting curve")
-        # ax1.set_title('Fitting empirical function to well '+CONC_WELLS_L[idx][idx2]+' at '+
-        #     str(CONCENTRATIONS[idx])+CONC_UNIT+', '+ CONDITIONS+', '+str(WAVELENGTHS[use_wavelength])+'nm')
-        # plt.xlabel('Time (Hours)')
-        # plt.ylabel('Absorbance')
-        # plt.legend(loc='lower right')
-        # plt.draw()
-        # plt.pause(0.01)
+            ax1 = fig.add_subplot(111)
+            ax1.plot(TIME,data[:ttot,fiddling[idx2]], 'ro', mfc='None' , label="Data")
+            # ax1.plot(TIME_old,data_old[:ttot_old2,fiddling[idx2]], 'rx' , label="Data")
+            ax1.plot(TIME,value, 'r-', label="Fitting curve")
+            ax1.set_title('Fitting empirical function to well '+CONC_WELLS_L[idx][idx2]+' at '+
+                str(CONCENTRATIONS[idx])+CONC_UNIT+', '+ CONDITIONS+', '+str(WAVELENGTHS[use_wavelength])+'nm')
+            plt.xlabel('Time (Hours)')
+            plt.ylabel('Absorbance')
+            plt.legend(loc='lower right')
+            plt.draw()
+            plt.pause(0.01)
 
 
 
@@ -195,9 +198,9 @@ with open(filename, 'wb') as writefile:
 
     writefile.write('# This data reduction was completed using the python software suite written by Nathaniel Bloomfield. \n')
     write = str(parsed.CSV[0])
-    writefile.write('csvFile = ' + write+'\n')
+    writefile.write('csvFile = "' + write+'"\n')
     write = str(parsed.CONFIG[0])
-    writefile.write('configFile =' + write+'\n')
+    writefile.write('configFile ="' + write+'"\n')
     writefile.write('from numpy import array \n')
     write = str(WAVELENGTHS[use_wavelength])
     writefile.write('use_wavelength =  '+ write +'\n')

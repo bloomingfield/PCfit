@@ -1,60 +1,36 @@
+# -*- coding: utf-8 -*-
 """
-
+Written by:
 Nathaniel Bloomfield
 
 14/12/14
 
 This code takes in the input and parses it to be analysed by any of the other modules.
 
-
-Todo: fitting, and then
-
-multi wavelength stuff... shouldn't be too hard.
-
-For plotting multiple files - get them to merge the data together, and add an index before each well specification to say the plate number.
-
 """
 from __future__ import division
-import scipy as sp
 import matplotlib
 matplotlib.use('tkagg')
+from pylab import *
+# matplotlib.use('qt4agg') # matplotlib.use('tkagg') - this produces freezing when drawing LOBF's on windows
+matplotlib.rc('font', family='Arial')
 import numpy
-from numpy import genfromtxt
 from copy import deepcopy
 import argparse
-import csv
-from pylab import *
 
+#   functions and stuff
 
-#code grabbed from online..... probably don't need this... Must be a better way to do this - with matplotlib
-
-# import win32gui
-
-# def window_switch():
-#     toplist = []
-#     winlist = []
-#     def enum_callback(hwnd, results):
-#         winlist.append((hwnd, win32gui.GetWindowText(hwnd)))
-
-#     win32gui.EnumWindows(enum_callback, toplist)
-#     firefox = [(hwnd, title) for hwnd, title in winlist if 'firefox' in title.lower()]
-#     # just grab the first window that matches
-#     firefox = firefox[0]
-#     # use the window handle to set focus
-#     return firefox
-
-
-#functions and stuff
-
-options = {'A' : 0,
-                'B' : 12,
-                'C' : 24,
-                'D' : 36,
-                'E' : 48,
-                'F' : 60,
-                'G' : 72,
-                'H' : 84,
+options = {
+    'A':  0,
+    'B': 12,
+    'C': 24,
+    'D': 36,
+    'E': 48,
+    'F': 60,
+    'G': 72,
+    'H': 84,
 }
+
 
 def RepresentsNotInt(s):
     try:
@@ -62,6 +38,7 @@ def RepresentsNotInt(s):
         return False
     except ValueError:
         return True
+
 
 def choose_lambda():
     loop = False
@@ -82,7 +59,8 @@ def choose_fittedFile():
     userinput = raw_input("Enter the filepath to fitted equations, or leave blank: ")
     return userinput
 
-def equation(a,b,c,d):
+
+def equation(a, b, c, d):
     value = a*(1-numpy.exp(-b*TIME))**c +d
     return value
 
@@ -126,7 +104,7 @@ def setup(ttot, t1, ti, CONC_WELLS, CONCENTRATIONS):
 #actual coding
 
 parser = argparse.ArgumentParser()
-parser.add_argument('OPTION', type=str, nargs=1, choices=['examine','mean','fit'],
+parser.add_argument('OPTION', type=str, nargs=1, choices=['examine','mean','fit','examineSome'],
     help='State what action you wish to complete. Options are examine, mean, or fit.')
 parser.add_argument('CONFIG', type=str, nargs=1, help='File path to the config file.')
 parser.add_argument('CSV', type=str, nargs=1, help='File path to the CSV file.')
@@ -134,6 +112,7 @@ parser.add_argument('CSV', type=str, nargs=1, help='File path to the CSV file.')
 
 
 parsed = parser.parse_args()   #parses sys.argv by default
+
 
 #loading config file
 execfile(parsed.CONFIG[0])
@@ -155,3 +134,5 @@ elif option == "mean":
     execfile("PCmean.py")
 elif option == "fit":
     execfile("PCfit.py")
+elif option == "examineSome":
+    execfile("PCexamineSome.py")

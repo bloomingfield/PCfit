@@ -1,14 +1,11 @@
 
 """
-
+Written by:
 Nathaniel Bloomfield
 
 14/12/14
 
-This code takes input and displays each graph in turn.
-
-Should do this at highest wavelength - or let people choose.
-Because highest wavelength would be easiest to tell if condensation was occuring and graph could be thrown out.
+This code displays each graph in turn.
 
 """
 

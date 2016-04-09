@@ -1,21 +1,18 @@
 """
-
+Written by:
 Nathaniel Bloomfield
 
 14/12/14
 
-This code takes input and after taking mean and SD, plots the data.
-
-includes plotting each concentration series together, and also each concentration
-at different wavelengths.
+This code takes takes the mean and standard deviation of the data, and displays it as a graph.
 
 """
 
 MEAN = list(CONCENTRATIONS)
 STD = list(CONCENTRATIONS)
-
+INHIBITION = list(CONCENTRATIONS)
 TIME = TIME[:]/3600
-
+inhibitionAssay = True
 
 #multiconcentration
 
@@ -35,11 +32,34 @@ for i in range(size(WAVELENGTHS)):
         ax1.errorbar(TIME,MEAN[idx],yerr=STD[idx], errorevery=10, label=''+str(CONCENTRATIONS[idx])+CONC_UNIT+'')
         plt.draw()
         plt.pause(0.01)
+        if (inhibitionAssay):
+            if (idx > 0):
+                INHIBITION[idx] =  (1 - MEAN[idx][-1]/MEAN[1][-1])*100
 
     ax1.set_title('Multiconcentrations at '+str(WAVELENGTHS[i])+'nm: '+ CONDITIONS)
     plt.xlabel('Time (Hours)')
     plt.ylabel('Absorbance')
-    plt.legend(loc='upper right')
+    plt.legend(loc='best')
+
+    if (inhibitionAssay):
+
+        polynomial = numpy.ma.polyfit(CONCENTRATIONS[1:], INHIBITION[1:], 3)
+        xDraw = numpy.linspace(0,
+                               CONCENTRATIONS[-1], num=100)
+        polynomialDraw = numpy.polyval(polynomial, xDraw)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot( CONCENTRATIONS[1:], INHIBITION[1:], 'ro', mfc='None' )
+        ax.plot(xDraw, polynomialDraw, 'b-')
+        ax.set_title('IC50 value at '+ CONDITIONS)
+        ax.set_xlim(-1, CONCENTRATIONS[-1] + 1)
+        ax.set_ylim(-1,  101)
+        plt.grid(True)
+        plt.yticks(np.linspace(0, 100, 11))
+        plt.xlabel('Concentration of Inhibitor ('+CONC_UNIT+')')
+        plt.ylabel('% Inhibition')
+        # print INHIBITION[1:]
+        # print CONCENTRATIONS[1:]
 
 
 #multiwavelength
@@ -61,7 +81,7 @@ for idx, val in enumerate(CONC_WELLS):
     ax1.set_title('Multiwavelength of '+str(CONCENTRATIONS[idx])+CONC_UNIT+' curves at '+ CONDITIONS)
     plt.xlabel('Time (Hours)')
     plt.ylabel('Absorbance')
-    plt.legend(loc='upper right')
+    plt.legend(loc='best')
     plt.draw()
     plt.pause(0.01)
 
